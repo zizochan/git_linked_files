@@ -4,7 +4,7 @@
 RCLONE_REMOTE="dropbox:git_linked_files"
 
 # Gitリポジトリの名前
-REPO_NAME="unity_1week_game_jam_202412"
+REPO_NAME="unity_1week_game_jam_202412x"
 
 # rclone上のリモートディレクトリ
 RCLONE_REPO_DIR="$RCLONE_REMOTE/$REPO_NAME"
