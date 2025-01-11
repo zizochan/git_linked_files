@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# 設定ファイルを読み込み
-CONFIG_FILE="$(dirname "$0")/config.sh"
+# 設定ファイルを読み込み（親ディレクトリに配置）
+CONFIG_FILE="$(dirname "$0")/../config.sh"
 if [ ! -f "$CONFIG_FILE" ]; then
 	echo "Error: 設定ファイルが見つかりません: $CONFIG_FILE"
 	exit 1
@@ -15,8 +15,8 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-# アップロードリストのパス
-UPLOAD_LIST="git_linked_files/file_list.txt"
+# アップロードリストのパス（親ディレクトリに配置）
+UPLOAD_LIST="$(dirname "$0")/../file_list.txt"
 
 # 必要なディレクトリを作成する
 ensure_directory_exists() {
