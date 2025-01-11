@@ -5,8 +5,7 @@ source "$(dirname "$0")/common.sh"
 
 # === 処理 ===
 echo "開始: Git リポジトリから rclone (Dropbox) へのアップロード"
-echo "3秒後に開始します"
-sleep 3
+confirm_execution
 
 process_file_list "upload"
 

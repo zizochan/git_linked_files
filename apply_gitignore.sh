@@ -8,7 +8,8 @@ SECTION_START="##### git_linked_files_start #####"
 SECTION_END="##### git_linked_files_end #####"
 
 # === 処理 ===
-echo "開始: file_list.txt の内容を .gitignore に反映"
+echo "開始: linked_file_list.txt の内容を .gitignore に反映"
+confirm_execution
 
 # .gitignore が存在しない場合は新規作成
 if [ ! -f ".gitignore" ]; then
@@ -26,7 +27,7 @@ while IFS= read -r line; do
 		inside_section=true
 		echo "$SECTION_START" >>"$temp_file"
 		echo "セクション開始を検出: $SECTION_START"
-		# file_list.txt の内容を挿入
+		# linked_file_list.txt の内容を挿入
 		while IFS= read -r upload_line; do
 			echo "$upload_line" >>"$temp_file"
 		done <"$UPLOAD_LIST"
@@ -57,4 +58,4 @@ fi
 # 更新された内容を .gitignore に反映
 mv "$temp_file" ".gitignore"
 
-echo "完了: file_list.txt の内容を .gitignore に反映"
+echo "完了: linked_file_list.txt の内容を .gitignore に反映"

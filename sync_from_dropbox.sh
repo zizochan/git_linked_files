@@ -5,8 +5,7 @@ source "$(dirname "$0")/common.sh"
 
 # === 処理 ===
 echo "開始: rclone (Dropbox) から Git リポジトリへの同期"
-echo "3秒後に開始します"
-sleep 3
+confirm_execution
 
 process_file_list "sync"
 

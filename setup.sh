@@ -1,11 +1,11 @@
 #!/bin/bash
 
-# config.sh または file_list.txt が既に存在するか確認
-CONFIG_PATH="../config.sh"
-FILE_LIST_PATH="../file_list.txt"
+# linked_file_config.sh または linked_file_list.txt が既に存在するか確認
+CONFIG_PATH="../linked_file_config.sh"
+FILE_LIST_PATH="../linked_file_list.txt"
 
 # 実行確認をユーザーに求める
-echo "このスクリプトは .config.sh.sample を ../config.sh に、.file_list.txt.sample を ../file_list.txt にコピーします。"
+echo "このスクリプトは .linked_file_config.sh.sample を ../linked_file_config.sh に、.linked_file_list.txt.sample を ../linked_file_list.txt にコピーします。"
 read -p "実行してもよろしいですか？ (yes/no): " confirm
 
 if [[ "$confirm" != "yes" ]]; then
@@ -25,15 +25,15 @@ if [[ -f "$FILE_LIST_PATH" ]]; then
 fi
 
 # サンプルファイルをコピー
-cp .config.sh.sample "$CONFIG_PATH"
+cp .linked_file_config.sh.sample "$CONFIG_PATH"
 if [[ $? -ne 0 ]]; then
-	echo "エラー: .config.sh.sample を $CONFIG_PATH にコピーできませんでした。"
+	echo "エラー: .linked_file_config.sh.sample を $CONFIG_PATH にコピーできませんでした。"
 	exit 1
 fi
 
-cp .file_list.txt.sample "$FILE_LIST_PATH"
+cp .linked_file_list.txt.sample "$FILE_LIST_PATH"
 if [[ $? -ne 0 ]]; then
-	echo "エラー: .file_list.txt.sample を $FILE_LIST_PATH にコピーできませんでした。"
+	echo "エラー: .linked_file_list.txt.sample を $FILE_LIST_PATH にコピーできませんでした。"
 	exit 1
 fi
 

@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # 設定ファイルを読み込み（親ディレクトリに配置）
-CONFIG_FILE="$(dirname "$0")/../config.sh"
+CONFIG_FILE="$(dirname "$0")/../linked_file_config.sh"
 if [ ! -f "$CONFIG_FILE" ]; then
 	echo "Error: 設定ファイルが見つかりません: $CONFIG_FILE"
 	exit 1
@@ -16,7 +16,7 @@ if [ $? -ne 0 ]; then
 fi
 
 # アップロードリストのパス（親ディレクトリに配置）
-UPLOAD_LIST="$(dirname "$0")/../file_list.txt"
+UPLOAD_LIST="$(dirname "$0")/../linked_file_list.txt"
 
 # 必要なディレクトリを作成する
 ensure_directory_exists() {
@@ -33,6 +33,15 @@ backup_file() {
 		ensure_directory_exists "$BACKUP_DIR"
 		cp "$file" "$backup_file_path"
 		echo "バックアップ作成: $file -> $backup_file_path"
+	fi
+}
+
+# 実行前の確認
+confirm_execution() {
+	read -p "実行してもよろしいですか？ (yes/no): " confirm
+	if [ "$confirm" != "yes" ]; then
+		echo "操作がキャンセルされました。"
+		exit 0
 	fi
 }
 
