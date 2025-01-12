@@ -132,14 +132,12 @@ process_file_list() {
 			src="$GIT_REPO_ROOT/$file"
 			# ターゲット: rcloneのリモートにおける完全パス
 			dest="$RCLONE_REPO_DIR/$file"
-			echo "DEBUG: upload src=\"$src\" dest=\"$dest\""
 			upload_file_to_rclone "$src" "$dest"
 		elif [ "$action" == "sync" ]; then
 			# ソース: rcloneのリモートにおける完全パス
 			src="$RCLONE_REPO_DIR/$file"
 			# ターゲット: リポジトリ内のファイル
 			dest="$GIT_REPO_ROOT/$file"
-			echo "DEBUG: sync src=\"$src\" dest=\"$dest\""
 			download_file_from_rclone "$src" "$dest"
 		else
 			echo "Error: 無効なアクション指定: $action"
