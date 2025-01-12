@@ -120,7 +120,7 @@ process_file_list() {
 	fi
 
 	# ファイルリストを読み込み
-	while IFS= read -r file; do
+	while IFS= read -r file || [ -n "$file" ]; do
 		# 空行やコメント行をスキップ
 		[[ -z "$file" || "$file" =~ ^# ]] && continue
 
