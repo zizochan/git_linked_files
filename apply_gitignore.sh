@@ -17,6 +17,21 @@ if [ ! -f ".gitignore" ]; then
 	touch ".gitignore"
 fi
 
+# ファイルを1行ずつ読み込んで書き出す
+process_file_lines() {
+	local input_file="$1"
+	local output_file="$2"
+
+	while IFS= read -r upload_line || [ -n "$upload_line" ]; do
+		# 空白行をスキップ
+		if [ -z "$upload_line" ]; then
+			continue
+		fi
+		# 処理を実行（例: ファイルに出力）
+		echo "$upload_line" >>"$output_file"
+	done <"$input_file"
+}
+
 # 一時ファイルを使用して更新後の内容を作成
 temp_file=$(mktemp)
 
@@ -28,9 +43,7 @@ while IFS= read -r line; do
 		echo "$SECTION_START" >>"$temp_file"
 		echo "セクション開始を検出: $SECTION_START"
 		# linked_file_list.txt の内容を挿入
-		while IFS= read -r upload_line; do
-			echo "$upload_line" >>"$temp_file"
-		done <"$UPLOAD_LIST"
+		process_file_lines "$UPLOAD_LIST" "$temp_file"
 		continue
 	elif [[ "$line" == "$SECTION_END" ]]; then
 		inside_section=false
@@ -49,9 +62,7 @@ done <.gitignore
 if ! grep -Fxq "$SECTION_START" .gitignore; then
 	echo "セクションが見つかりません。新規セクションを追加します。"
 	echo "$SECTION_START" >>"$temp_file"
-	while IFS= read -r upload_line; do
-		echo "$upload_line" >>"$temp_file"
-	done <"$UPLOAD_LIST"
+	process_file_lines "$UPLOAD_LIST" "$temp_file"
 	echo "$SECTION_END" >>"$temp_file"
 fi
 
