@@ -27,6 +27,12 @@ ensure_directory_exists() {
 # ファイルのバックアップ処理
 backup_file() {
 	local file="$1"
+
+	# BACKUP_DIRが空文字またはnullの場合は戻る
+	if [ -z "$BACKUP_DIR" ]; then
+		return
+	fi
+
 	local backup_file_path="$BACKUP_DIR/$(basename "$file")_$(date +"%Y%m%d%H%M%S")"
 
 	if [ -f "$file" ]; then
