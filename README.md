@@ -36,12 +36,12 @@ cd git_linked_files
 
 ### ストレージへのアップロード
 ```
-git_linked_files/upload_to_dropbox.sh
+git_linked_files/upload_to_dropbox.sh [--dry-run]
 ```
 
 ### ストレージからの取得
 ```
-git_linked_files/sync_from_dropbox.sh
+git_linked_files/sync_from_dropbox.sh [--dry-run]
 ```
 
 ### .gitignoreへの反映
