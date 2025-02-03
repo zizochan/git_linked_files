@@ -12,7 +12,9 @@ fi
 
 # === 処理 ===
 echo "開始: rclone (Dropbox) から Git リポジトリへの同期"
-confirm_execution
+if [ "$DRY_RUN" = false ]; then
+	confirm_execution
+fi
 
 process_file_list "sync" "$DRY_RUN"
 

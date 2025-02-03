@@ -12,7 +12,9 @@ fi
 
 # === 処理 ===
 echo "開始: Git リポジトリから rclone (Dropbox) へのアップロード"
-confirm_execution
+if [ "$DRY_RUN" = false ]; then
+	confirm_execution
+fi
 
 process_file_list "upload" "$DRY_RUN"
 

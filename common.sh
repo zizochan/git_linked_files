@@ -62,58 +62,48 @@ create_remote_directory() {
 	fi
 }
 
-# ファイルのアップロード（rcloneを使用）
-upload_file_to_rclone() {
-	local src="$1"
-	local dest="$2"
-	local dry_run="${3:-false}"
+# ファイルのアップロード・ダウンロード（rcloneを使用）
+transfer_file_with_rclone() {
+	local action="$1" # "upload" または "download"
+	local src="$2"
+	local dest="$3"
+	local dry_run="${4:-false}"
+	local command="rclone copyto $src $dest $(generate_rclone_exclude)"
 
-	# リモートディレクトリを作成
+	# 必要なディレクトリを作成
 	local dest_dir
 	dest_dir=$(dirname "$dest")
-	create_remote_directory "$dest_dir"
 
-	# バックアップ処理
-	backup_file "$src"
-
-	if [ "$dry_run" == "true" ]; then
-		rclone copyto "$src" "$dest" --dry-run --log-format=NOTICE 2>&1 | grep -E "NOTICE: .*: Skipped copy"
+	if [ "$action" == "upload" ]; then
+		create_remote_directory "$dest_dir"
+		backup_file "$src"
 	else
-		rclone copyto "$src" "$dest"
+		ensure_directory_exists "$dest_dir"
+		backup_file "$dest"
+	fi
+
+	# 実行
+	if [ "$dry_run" == "true" ]; then
+		$command --dry-run --log-format=NOTICE 2>&1 | grep -E "NOTICE: .*: Skipped copy"
+	else
+		$command
 		if [ $? -eq 0 ]; then
-			echo "アップロード成功: \"$src\" -> \"$dest\""
+			echo "$action 成功: \"$src\" -> \"$dest\""
 		else
-			echo "Error: アップロード失敗: \"$src\" -> \"$dest\""
+			echo "Error: $action 失敗: \"$src\" -> \"$dest\""
 			return 1
 		fi
 	fi
 }
 
-# ファイルのダウンロード（rcloneを使用）
-download_file_from_rclone() {
-	local src="$1"
-	local dest="$2"
-	local dry_run="${3:-false}"
-
-	# 必要なローカルディレクトリを作成
-	local dest_dir
-	dest_dir=$(dirname "$dest")
-	ensure_directory_exists "$dest_dir"
-
-	# バックアップ処理
-	backup_file "$dest"
-
-	if [ "$dry_run" == "true" ]; then
-		rclone copyto "$src" "$dest" --dry-run --log-format=NOTICE 2>&1 | grep -E "NOTICE: .*: Skipped copy"
-	else
-		rclone copyto "$src" "$dest"
-		if [ $? -eq 0 ]; then
-			echo "ダウンロード成功: \"$src\" -> \"$dest\""
-		else
-			echo "Error: ダウンロード失敗: \"$src\" -> \"$dest\""
-			return 1
-		fi
-	fi
+# 除外ファイル・ディレクトリパターンを rclone 用の `--exclude` オプションとして配列化
+generate_rclone_exclude() {
+	local exclude_args=()
+	for pattern in "${EXCLUDE_PATTERNS[@]}"; do
+		exclude_args+=("--exclude")
+		exclude_args+=("$pattern")
+	done
+	echo "${exclude_args[@]}"
 }
 
 # ファイルリストを処理する
@@ -131,18 +121,21 @@ process_file_list() {
 
 		local src=""
 		local dest=""
+		local transfer_action=""
 
 		if [ "$action" == "upload" ]; then
 			src="$GIT_REPO_ROOT/$file"
 			dest="$RCLONE_REPO_DIR/$file"
-			upload_file_to_rclone "$src" "$dest" "$dry_run"
+			transfer_action="upload"
 		elif [ "$action" == "sync" ]; then
 			src="$RCLONE_REPO_DIR/$file"
 			dest="$GIT_REPO_ROOT/$file"
-			download_file_from_rclone "$src" "$dest" "$dry_run"
+			transfer_action="download"
 		else
 			echo "Error: 無効なアクション指定: $action"
 			return 1
 		fi
+
+		transfer_file_with_rclone "$transfer_action" "$src" "$dest" "$dry_run"
 	done <"$UPLOAD_LIST"
 }

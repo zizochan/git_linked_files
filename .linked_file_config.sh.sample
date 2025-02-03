@@ -11,3 +11,11 @@ RCLONE_REPO_DIR="$RCLONE_REMOTE/$REPO_NAME"
 
 # バックアップの保存先ディレクトリ
 BACKUP_DIR="$HOME/Downloads/git_file_backups"
+
+# 除外ファイルパターン（配列で指定）
+EXCLUDE_PATTERNS=(
+    ".DS_Store"  # macOS の不要ファイル
+    "Thumbs.db"  # Windows の不要ファイル
+    "*.log"      # ログファイル
+    "*.tmp"      # 一時ファイル
+)
