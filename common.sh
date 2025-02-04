@@ -68,7 +68,8 @@ transfer_file_with_rclone() {
 	local src="$2"
 	local dest="$3"
 	local dry_run="${4:-false}"
-	local command="rclone copyto $src $dest $(generate_rclone_exclude)"
+	local excludes
+	excludes=$(generate_rclone_exclude)
 
 	# 必要なディレクトリを作成
 	local dest_dir
@@ -80,6 +81,15 @@ transfer_file_with_rclone() {
 	else
 		ensure_directory_exists "$dest_dir"
 		backup_file "$dest"
+	fi
+
+	# 単一ファイルかディレクトリかを判定
+	if [ -d "$src" ]; then
+		# ディレクトリの場合は `rclone copy` を使用
+		local command="rclone copy $src $dest $excludes"
+	else
+		# 単一ファイルの場合は `rclone copyto` を使用（フィルターを適用しない）
+		local command="rclone copyto $src $dest"
 	fi
 
 	# 実行
