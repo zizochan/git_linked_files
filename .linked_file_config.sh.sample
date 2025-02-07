@@ -10,7 +10,8 @@ REPO_NAME="your_repo_name"
 RCLONE_REPO_DIR="$RCLONE_REMOTE/$REPO_NAME"
 
 # バックアップの保存先ディレクトリ
-BACKUP_DIR="$HOME/Downloads/git_file_backups"
+# 必要ならコメントアウトを外して設定する
+# BACKUP_DIR="$HOME/Downloads/git_file_backups"
 
 # 除外ファイルパターン（配列で指定）
 EXCLUDE_PATTERNS=(

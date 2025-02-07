@@ -86,17 +86,17 @@ transfer_file_with_rclone() {
 	# 単一ファイルかディレクトリかを判定
 	if [ -d "$src" ]; then
 		# ディレクトリの場合は `rclone copy` を使用
-		local command="rclone copy $src $dest $excludes"
+		local command="rclone copy \"$src\" \"$dest\" $excludes"
 	else
 		# 単一ファイルの場合は `rclone copyto` を使用（フィルターを適用しない）
-		local command="rclone copyto $src $dest"
+		local command="rclone copyto \"$src\" \"$dest\""
 	fi
 
 	# 実行
 	if [ "$dry_run" == "true" ]; then
-		$command --dry-run --log-format=NOTICE 2>&1 | grep -E "NOTICE: .*: Skipped copy"
+		eval "$command --dry-run --log-format=NOTICE 2>&1 | grep -E 'NOTICE: .*: Skipped copy'"
 	else
-		$command
+		eval "$command"
 		if [ $? -eq 0 ]; then
 			echo "$action 成功: \"$src\" -> \"$dest\""
 		else
