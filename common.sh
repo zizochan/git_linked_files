@@ -24,21 +24,46 @@ ensure_directory_exists() {
 	mkdir -p "$dir"
 }
 
-# ファイルのバックアップ処理
-backup_file() {
-	local file="$1"
-
-	# BACKUP_DIRが空文字またはnullの場合は戻る
+# バックアップディレクトリの作成（スクリプト実行中は共通のディレクトリを使用）
+initialize_backup_dir() {
+	# BACKUP_DIRが設定されていなければ処理をスキップ
 	if [ -z "$BACKUP_DIR" ]; then
 		return
 	fi
 
-	local backup_file_path="$BACKUP_DIR/$(basename "$file")_$(date +"%Y%m%d%H%M%S")"
+	if [ -z "$TIMESTAMPED_BACKUP_DIR" ]; then
+		export TIMESTAMPED_BACKUP_DIR="$BACKUP_DIR/$(date +"%Y%m%d%H%M%S")"
+		ensure_directory_exists "$TIMESTAMPED_BACKUP_DIR"
+	fi
+}
 
-	if [ -f "$file" ]; then
-		ensure_directory_exists "$BACKUP_DIR"
-		cp "$file" "$backup_file_path"
-		echo "バックアップ作成: $file -> $backup_file_path"
+# ファイルまたはディレクトリのバックアップ処理
+backup_file() {
+	local file="$1"
+
+	# BACKUP_DIRが設定されていなければ処理をスキップ
+	if [ -z "$BACKUP_DIR" ]; then
+		return
+	fi
+
+	# スクリプト開始時に作成された共通のバックアップディレクトリを使用
+	local cwd
+	cwd=$(pwd)                          # カレントディレクトリ取得
+	local relative_path="${file#$cwd/}" # `file` からカレントディレクトリ部分を削除
+	local backup_target_dir="$TIMESTAMPED_BACKUP_DIR/$(dirname "$relative_path")"
+	local backup_file_path="$TIMESTAMPED_BACKUP_DIR/$relative_path"
+
+	# ファイルまたはディレクトリが存在する場合のみバックアップ
+	if [ -e "$file" ]; then
+		mkdir -p "$backup_target_dir" # ディレクトリ構造を維持
+
+		if [ -d "$file" ]; then
+			cp -r "$file" "$backup_file_path"
+			echo "ディレクトリのバックアップ作成: $file -> $backup_file_path"
+		else
+			cp "$file" "$backup_file_path"
+			echo "ファイルのバックアップ作成: $file -> $backup_file_path"
+		fi
 	fi
 }
 
@@ -77,10 +102,16 @@ transfer_file_with_rclone() {
 
 	if [ "$action" == "upload" ]; then
 		create_remote_directory "$dest_dir"
-		backup_file "$src"
+		# dry_run でない場合のみバックアップ
+		if [ "$dry_run" != "true" ]; then
+			backup_file "$src"
+		fi
 	else
 		ensure_directory_exists "$dest_dir"
-		backup_file "$dest"
+		# dry_run でない場合のみバックアップ
+		if [ "$dry_run" != "true" ]; then
+			backup_file "$dest"
+		fi
 	fi
 
 	# 単一ファイルかディレクトリかを判定
@@ -124,6 +155,11 @@ process_file_list() {
 	if [ ! -f "$UPLOAD_LIST" ]; then
 		echo "Error: アップロードリストが見つかりません: $UPLOAD_LIST"
 		return 1
+	fi
+
+	# バックアップディレクトリの初期化
+	if [ "$dry_run" != "true" ]; then
+		initialize_backup_dir
 	fi
 
 	while IFS= read -r file || [ -n "$file" ]; do
