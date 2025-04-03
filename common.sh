@@ -8,6 +8,13 @@ if [ ! -f "$CONFIG_FILE" ]; then
 fi
 source "$CONFIG_FILE"
 
+# RCLONE_REMOTE の決定
+if [[ "$CLOUD_PROVIDER" != "dropbox" && "$CLOUD_PROVIDER" != "gdrive" ]]; then
+	echo "Error: 無効な CLOUD_PROVIDER が設定されています: $CLOUD_PROVIDER"
+	exit 1
+fi
+RCLONE_REPO_DIR="${CLOUD_PROVIDER}:git_linked_files/${REPO_NAME}"
+
 # Gitリポジトリのルートパス
 GIT_REPO_ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
 if [ $? -ne 0 ]; then

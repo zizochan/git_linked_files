@@ -1,13 +1,10 @@
 #!/bin/bash
 
-# rcloneのリモート名とディレクトリ
-RCLONE_REMOTE="dropbox:git_linked_files"
+# 使用するクラウドプロバイダ（gdrive または dropbox）
+CLOUD_PROVIDER="your_provider_name"
 
 # Gitリポジトリの名前
 REPO_NAME="your_repo_name"
-
-# rclone上のリモートディレクトリ
-RCLONE_REPO_DIR="$RCLONE_REMOTE/$REPO_NAME"
 
 # バックアップの保存先ディレクトリ
 # 必要ならコメントアウトを外して設定する
